@@ -1,0 +1,6 @@
+{
+  "DB_USER": "myUser",
+  "DB_PWD": "myPassword!",
+  "DB_DSN": "mysql:host=localhost;port=3306;dbname=myDB",
+  "ALLOWED_TABLES": ["myTable"]
+}

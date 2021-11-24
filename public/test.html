@@ -1,0 +1,82 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Page Title</title>
+</head>
+
+<body>
+    <script>
+
+        const uri = 'https://www.dcslob.nl/api/public/index.php?id=1&t=garden';
+        const initDetails = {
+            method: 'get',
+            mode: 'cors',
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            mode: "cors"
+        }
+
+        function JSONstringify(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, '\t');
+            }
+
+            var
+                arr = [],
+                _string = 'color:orange',
+                _number = 'color:darkorange',
+                _boolean = 'color:blue',
+                _null = 'color:magenta',
+                _key = 'color:khaki';
+
+            json = json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var style = _number;
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        style = _key;
+                    } else {
+                        style = _string;
+                    }
+                } else if (/true|false/.test(match)) {
+                    style = _boolean;
+                } else if (/null/.test(match)) {
+                    style = _null;
+                }
+                arr.push(style);
+                arr.push('');
+                return '%c' + match + '%c';
+            });
+
+            arr.unshift(json);
+            console.log.apply(console, arr);
+        }
+
+        function GetData() {
+
+            fetch(uri, initDetails)
+                .then(response => {
+                    if (response.status !== 200) {
+                        console.log('Looks like there was a problem. Status Code: ' +
+                            response.status);
+                        return;
+                    }
+
+                    console.log(response.headers.get("Content-Type"));
+                    return response.json();
+                }
+                )
+                .then(myJson => {
+                    JSONstringify(myJson);
+                })
+                .catch(err => {
+                    console.log('Fetch Error :-S', err);
+                });
+        }
+    </script>
+    <button id='getData' onclick="GetData()">Get Data</button>
+
+</body>
+
+</html>
