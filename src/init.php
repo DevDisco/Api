@@ -1,7 +1,7 @@
 <?php
 
 //A simple autoloader that grabs everything in /classes/, no need for composer
-$classFolder = "../src/classes/";
+$classFolder = "../../../src/classes/";
 
 if (is_dir($classFolder)) {
 

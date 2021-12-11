@@ -9,7 +9,7 @@ class Request
      * Returns FALSE if no valid id is found
      * An id must be an integer string value larger than 0
      */
-    public function getID(): int|bool
+    public function getID(): int|bool  
     {
 
         if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidID($_GET['id'] ?? FALSE)) {

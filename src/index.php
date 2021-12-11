@@ -1,10 +1,5 @@
 <?php
 
-require_once "../src/init.php";
-
-$debug = false;
-//$debug = true;
-
 $config = new Config();
 $error = new SimpleError();
 $request = new Request();
