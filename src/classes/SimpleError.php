@@ -29,7 +29,7 @@ class SimpleError
      * Prints the contents of the SimpleError object
      * Doesn't print anything if no error has been set.
      */
-    public function printError(bool $debug=FALSE): void
+    public function printError(): void
     {
 
         if ($this->httpError > 0) {
@@ -42,7 +42,7 @@ class SimpleError
             print $this->message;
         }
 
-        if (!empty($this->trace) && $debug) {
+        if (!empty($this->trace) && DEBUG) {
 
             print " [".$this->trace[0]['file']." (". $this->trace[0]['line'].")]";
         }
@@ -68,5 +68,17 @@ class SimpleError
         }   
         
         return $error;
+    }
+
+
+
+    public function showAndAbort()
+    {
+
+        require_once TEMPLATES_FOLDER . "error/header.php";
+        Logger::printLog(DEBUG);
+        $this->printError(DEBUG);
+        require_once TEMPLATES_FOLDER . "error/footer.php";
+        exit;
     }
 }

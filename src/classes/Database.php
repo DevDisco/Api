@@ -24,19 +24,19 @@ class Database
 
     /**
      * Creates a SELECT statement and returns the results.
-     * If $id is set to FALSE the whole table will be returned,
+     * If $id is set to false the whole table will be returned,
      * otherwise the matching record.
      * It handles sql errors and tables you're not allowed to use.
      * Return values
      * - an array containing the requested record(s)
-     * - FALSE on error or empty result set
+     * - false on error or empty result set
      */
-    public function run(string|bool $table, int|bool $id = FALSE): array|bool|string
+    public function run(string|bool $table, int|bool $id = false): array|bool|string
     {
         if (!in_array($table, $this->config->ALLOWED_TABLES)) {
 
             $this->error->setError("You are not allowed to use this table.", 406);
-            return FALSE;
+            return false;
         }
 
         $result = $this->queryDb($table, $id);
@@ -47,10 +47,10 @@ class Database
     /**
      * Helper function for run()
      */
-    private function queryDb(string|bool $table, int|bool $id = FALSE): array|bool
+    private function queryDb(string|bool $table, int|bool $id = false): array|bool
     {
 
-        if ($id === FALSE) {
+        if ($id === false) {
 
             $sql = "SELECT * FROM $table";
             $stmt = $this->pdo->query($sql);
@@ -68,13 +68,52 @@ class Database
         return $result;
     }
 
+    public function read(string $sql, array $params = [],
+        int $fetchMode = PDO::FETCH_ASSOC
+    ): bool|array {
+
+        $stmt = $this->prepareExecute($sql, $params);
+
+        try {
+            return $stmt->fetchAll($fetchMode);
+        } catch (\PDOException $th) {
+            Logger::toLog($th->getMessage());
+            $this->error->setError("Database: fetch query failed.", $th->getCode());
+            $this->error->showAndAbort();
+        }
+    }
+
+    private function prepareExecute(string $sql, array $params = []): PDOStatement|bool
+    {
+
+        // /Logger::toLog($sql, "prepareExecute");
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+        } catch (\PDOException $th) {
+            Logger::toLog($th->getMessage());
+            $this->error->setError("Database: prepare query failed.", $th->getCode());
+            $this->error->showAndAbort();
+        }
+
+        try {
+            $stmt->execute($params);
+        } catch (\PDOException $th) {
+            Logger::toLog($th->getMessage());
+            $this->error->setError("Database: execute query failed.", $th->getCode());
+            $this->error->showAndAbort();
+        }
+
+        return $stmt;
+    }
+
     /**
      * Helper function for queryDb()
      */
     private function catchErrorsOrEmpty(array|bool $result, PDOStatement $stmt): void
     {
 
-        if ($result === FALSE) {
+        if ($result === false) {
 
             $sql_error = $stmt->errorInfo();
 

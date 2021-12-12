@@ -6,13 +6,13 @@ class Request
 {
     /**
      * Returns the id from a GET or POST request as an integer
-     * Returns FALSE if no valid id is found
+     * Returns false if no valid id is found
      * An id must be an integer string value larger than 0
      */
     public function getID(): int|bool  
     {
 
-        if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidID($_GET['id'] ?? FALSE)) {
+        if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidID($_GET['id'] ?? false)) {
 
             return (int)$_GET['id'];
         } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidID($_POST['id'] ?? 0)) {
@@ -20,7 +20,7 @@ class Request
             return (int)$_POST['id'];
         } else {
 
-            return FALSE;
+            return false;
         }
     }
 
@@ -33,31 +33,31 @@ class Request
         //mind that id from $_GET is a string, not an int.
         if ((ctype_digit($value)) && (int)$value > 0) {
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
      * Returns the table name from a GET or POST request as a string
-     * Returns FALSE if no valid table name is found
+     * Returns false if no valid table name is found
      * A table name must be lowercase alphanumeric and may include underscores
      * It can't start with a number and can't end with an underscore.
      */
     public function getTable(): string|bool
     {
 
-        //NB: $this->isValidTable($_GET['t'] ?? FALSE is a shortcut for a check on isset()
-        if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidTable($_GET['t'] ?? FALSE)) {
+        //NB: $this->isValidTable($_GET['t'] ?? false is a shortcut for a check on isset()
+        if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidTable($_GET['t'] ?? false)) {
 
             return $_GET['t'];
-        } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidTable($_POST['t'] ?? FALSE)) {
+        } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidTable($_POST['t'] ?? false)) {
 
             return $_POST['t'];
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -67,11 +67,11 @@ class Request
     {
         //only accept lowercase characters, numbers and underscore
         //tablename can't start with a number or end with an underscore
-        if (preg_match("/^[a-z_][A-Za-z0-9_]+[a-z0-9]$/", $table) && $table !== FALSE) {
+        if (preg_match("/^[a-z_][A-Za-z0-9_]+[a-z0-9]$/", $table) && $table !== false) {
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 }

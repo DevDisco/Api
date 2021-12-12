@@ -10,19 +10,28 @@ $database = new Database($config, $error);
 $id = $request->getID();
 $table = $request->getTable();
 
-if ($table === FALSE) {
+if ($table === false) {
 
     $error->setError("No or not a valid table.", 406);
 } else {
 
-    //run query, will report on invalid parameters
-    $result = $database->run($table, $id, FALSE);
+    if ( is_file( "../Custom.php" ) ){
+        
+        require_once("../Custom.php" );
+        $custom = new Custom($database);
+        $result = $custom->execute($table, $id);
+    }
+    else{
+    
+        //run query, will report on invalid parameters
+        $result = $database->run($table, $id);
+    }
 
     Logger::toLog($result, "result");
 
     if (is_array($result)) {
 
-        if (!$debug) {
+        if (!DEBUG) {
 
             header('Content-type: application/json');
             print json_encode($result);
@@ -32,7 +41,7 @@ if ($table === FALSE) {
 }
 
 //any errors are returned as a json object
-if (!$debug) {
+if (!DEBUG) {
 
     header('Content-type: application/json');
     print json_encode($error->getErrorArray());
@@ -40,5 +49,5 @@ if (!$debug) {
 }
 
 //this is just for debugging
-$error->printError($debug);
-Logger::printLog($debug);
+$error->printError();
+Logger::printLog();
