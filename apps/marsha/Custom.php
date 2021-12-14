@@ -12,31 +12,93 @@ class Custom
 
     public function execute(string $table, int $id): bool|array
     {
+        
+        $category = $this->getCategory();
 
-        if ($table === "werk" && !$id) {
+        if ($table === "werk" && $category) {
+
+            return $this->getSelection($category);
+        }
+        else if ($table === "werk" && !$id) {
 
             return $this->getShowcases();
         }   
+        else if ($table === "werk" && $id > 0 ){
+
+            return $this->getItem($id);
+        } 
+        else if ($table === "tekst" && !$id) {
+
+            return $this->getText();
+        } 
     }
 
-    private function getShowcases()
+
+    private function getText(): bool|array
     {
-        $result[CAT_KEY_NEW] = $this->getSelection(CAT_ID_NEW);
-        $result[CAT_KEY_AUTONOMOUS] = $this->getSelection(CAT_ID_AUTONOMOUS);
-        $result[CAT_KEY_APPLIED] = $this->getSelection(CAT_ID_APPLIED);
-        $result[CAT_KEY_ARCHIVE] = $this->getSelection(CAT_ID_ARCHIVE);
+        $sql = "SELECT tag,tekst FROM `tekst`";
+        return $this->database->read($sql,[], PDO::FETCH_KEY_PAIR);
+    }
+
+    private function getItem( int $id ): bool|array
+    {
+        $sql = "SELECT * FROM `werk` WHERE id=:id LIMIT 1";
+
+        $params = [':id' => $id];
+
+        return $this->database->read($sql, $params);
+    }
+
+    private function getShowcases(): array
+    {
+        $result[CAT_KEY_NEW] = $this->getSelection(CAT_KEY_NEW);
+        $result[CAT_KEY_AUTONOMOUS] = $this->getSelection(CAT_KEY_AUTONOMOUS, 3);
+        $result[CAT_KEY_APPLIED] = $this->getSelection(CAT_KEY_APPLIED, 3);
+        $result[CAT_KEY_ARCHIVE] = $this->getSelection(CAT_KEY_ARCHIVE, 3);
         return $result;
     }
 
-    private function getSelection(int $category, int $n = 3): bool|array
+    private function getSelection(string $category, int|bool $n = false): bool|array
     {
 
-        $n = $n <= 0 ? 3 : $n;
+        $limit = $n === false ? " ORDER BY titel" : " ORDER BY RAND() LIMIT ".$n;
 
-        $sql = "SELECT * FROM `werk` WHERE categorie_werk_id=:werk_id ORDER BY RAND() LIMIT " . $n;
+        $sql = "SELECT * FROM `werk` WHERE categorie=:category" . $limit;
 
-        $params = [':werk_id' => $category];
+        $params = [':category' => $category];
 
         return $this->database->read($sql, $params);
+    }
+
+
+    public function getCategory(): bool|string
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidCategory($_GET['c'] ?? false)) {
+
+            
+            return $_GET['c'];
+        } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidCategory($_POST['c'] ?? false)) {
+
+            return $_POST['c'];
+        } else {
+
+            return false;
+        }
+    }
+
+    private function isValidCategory(string|bool $value): bool
+    {
+
+        //mind that id from $_GET is a string, not an int.
+        $result = match ( $value ) {
+            
+            CAT_KEY_NEW => true,
+            CAT_KEY_APPLIED => true,
+            CAT_KEY_ARCHIVE => true, 
+            CAT_KEY_AUTONOMOUS => true,
+            default => false
+        };
+        
+        return $result;
     }
 }

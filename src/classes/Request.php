@@ -15,7 +15,7 @@ class Request
         if ($_SERVER['REQUEST_METHOD'] === "GET" && $this->isValidID($_GET['id'] ?? false)) {
 
             return (int)$_GET['id'];
-        } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidID($_POST['id'] ?? 0)) {
+        } else if ($_SERVER['REQUEST_METHOD'] === "POST" && $this->isValidID($_POST['id'] ?? false)) {
 
             return (int)$_POST['id'];
         } else {
